@@ -1,97 +1,99 @@
 "use client";
 
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Image from "next/image";
 
 const SignaturePage = () => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [verificationHash, setVerificationHash] = useState("");
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handleGenerateSignature = () => {
+    // TODO: Implement signature generation
+    console.log("Generating signature for:", selectedFile);
+  };
+
+  const handleVerify = () => {
+    // TODO: Implement verification
+    console.log("Verifying with hash:", verificationHash);
+  };
+
   return (
-    <div className="page-container">
-      <div className="flex w-full items-center justify-between">
-        <h1 className="h1">File Signature</h1>
-        <div className="flex items-center gap-4">
-          <Button className="primary-btn">
-            <Image
-              src="/assets/icons/upload.svg"
-              alt="Verify"
-              width={24}
-              height={24}
-            />
-            <p>Verify File</p>
-          </Button>
-        </div>
-      </div>
+    <div className="container mx-auto py-8 px-4">
+      <h1 className="text-2xl font-bold mb-8">File Signature and Verification</h1>
 
-      <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {/* File Verification */}
-        <Card className="col-span-full">
-          <CardHeader>
-            <CardTitle>File Verification</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {/* Verification Item */}
-              <div className="flex items-center justify-between rounded-lg border p-4">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-                    <Image
-                      src="/assets/icons/file-document.svg"
-                      alt="File"
-                      width={24}
-                      height={24}
-                    />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">document.pdf</h3>
-                    <p className="text-sm text-green-500">✓ Verified</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium">2.5 MB</p>
-                  <p className="text-sm text-gray-500">2 minutes ago</p>
-                </div>
-              </div>
-
-              {/* More verification items would go here */}
+      {/* Generate Signature Section */}
+      <Card className="mb-8">
+        <CardContent className="pt-6">
+          <h2 className="text-xl font-semibold mb-4">Generate Signature</h2>
+          <div className="border-2 border-dashed border-gray-200 rounded-lg p-8 text-center">
+            <div className="flex flex-col items-center justify-center">
+              <Image
+                src="/assets/icons/file-document.svg"
+                alt="Upload"
+                width={40}
+                height={40}
+                className="mb-4"
+              />
+              <p className="text-gray-600 mb-4">Drag and drop your file here, or click to select</p>
+              <input
+                type="file"
+                onChange={handleFileSelect}
+                className="hidden"
+                id="fileInput"
+              />
+              <Button
+                onClick={() => document.getElementById('fileInput')?.click()}
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                Select File
+              </Button>
+              {selectedFile && (
+                <p className="mt-2 text-sm text-gray-600">{selectedFile.name}</p>
+              )}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Signature History */}
-        <Card className="col-span-full">
-          <CardHeader>
-            <CardTitle>Signature History</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {/* Signature Item */}
-              <div className="flex items-center justify-between rounded-lg border p-4">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                    <Image
-                      src="/assets/icons/signature.svg"
-                      alt="Signature"
-                      width={24}
-                      height={24}
-                    />
-                  </div>
-                  <div>
-                    <h3 className="font-medium">document.pdf</h3>
-                    <p className="text-sm text-gray-500">SHA-256</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-medium">2.5 MB</p>
-                  <p className="text-sm text-gray-500">2 minutes ago</p>
-                </div>
-              </div>
-
-              {/* More signature items would go here */}
+      {/* Verify Signature Section */}
+      <Card>
+        <CardContent className="pt-6">
+          <h2 className="text-xl font-semibold mb-4">Verify Signature</h2>
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Enter Time Stamp or upload file"
+                value={verificationHash}
+                onChange={(e) => setVerificationHash(e.target.value)}
+                className="flex-1"
+              />
+              <Button variant="outline">
+                <Image
+                  src="/assets/icons/upload.svg"
+                  alt="Upload"
+                  width={20}
+                  height={20}
+                />
+              </Button>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+            <Button 
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={handleVerify}
+            >
+              Verify
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

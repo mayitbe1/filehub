@@ -79,7 +79,7 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
         onClick={() => router.push('/signature')}
       >
         <Image
-          src="/assets/icons/signature.svg"
+          src="/assets/icons/upload.svg"
           alt="signature"
           width={24}
           height={24}
@@ -93,7 +93,7 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
         onClick={() => router.push('/drop')}
       >
         <Image
-          src="/assets/icons/drop.svg"
+          src="/assets/icons/upload.svg"
           alt="drop"
           width={24}
           height={24}
