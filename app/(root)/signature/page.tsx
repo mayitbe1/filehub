@@ -9,7 +9,9 @@ import { toast } from "@/hooks/use-toast";
 import { 
   calculateFileHash, 
   generateSignature,
-  verifySignature
+  verifySignature,
+  saveSignatureToLocal,
+  getSignatureFromLocal
 } from "@/services/signature";
 
 interface SignatureData {
@@ -56,25 +58,12 @@ const SignaturePage = () => {
       const signature = generateSignature(hash);
       console.log('Signature generated:', signature);
       
-      // 保存签名信息
-      const response = await fetch('/api/signature', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ hash, signature }),
-      });
-
-      const data = await response.json();
-      console.log('API response:', data);
-
-      if (!response.ok) {
-        throw new Error(data.details || data.error || 'Failed to save signature');
-      }
-
+      // 保存到本地存储
+      saveSignatureToLocal(hash, signature);
+      
       setSignatureData({
-        hash: data.hash,
-        signature: data.signature,
+        hash,
+        signature,
         timestamp: Date.now()
       });
 

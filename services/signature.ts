@@ -106,4 +106,34 @@ export async function importPublicKey(publicKeyBase64: string): Promise<CryptoKe
     true,
     ["verify"]
   );
+}
+
+// 保存签名到本地存储
+export function saveSignatureToLocal(hash: string, signature: string): void {
+  if (!isBrowser) return;
+  
+  try {
+    const signatureData = {
+      hash,
+      signature,
+      timestamp: Date.now()
+    };
+    localStorage.setItem('fileSignature', JSON.stringify(signatureData));
+  } catch (error) {
+    console.error('Error saving signature to local storage:', error);
+    throw new Error('Failed to save signature: ' + (error instanceof Error ? error.message : 'Unknown error'));
+  }
+}
+
+// 从本地存储获取签名
+export function getSignatureFromLocal(): { hash: string; signature: string; timestamp: number } | null {
+  if (!isBrowser) return null;
+  
+  try {
+    const storedData = localStorage.getItem('fileSignature');
+    return storedData ? JSON.parse(storedData) : null;
+  } catch (error) {
+    console.error('Error getting signature from local storage:', error);
+    return null;
+  }
 } 
