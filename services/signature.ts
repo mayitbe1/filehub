@@ -3,6 +3,9 @@ import { encodeBase64, decodeBase64 } from "../utils/base64";
 // 检查是否在浏览器环境中
 const isBrowser = typeof window !== 'undefined';
 
+// 检查 Web Crypto API 是否可用
+const isCryptoAvailable = isBrowser && window.crypto?.subtle;
+
 // 生成RSA密钥对
 export async function generateKeyPair() {
   return await window.crypto.subtle.generateKey(
@@ -19,45 +22,45 @@ export async function generateKeyPair() {
 
 // 计算文件的SHA-256哈希
 export async function calculateFileHash(file: File): Promise<string> {
+  if (!isBrowser) {
+    throw new Error('File hash calculation must be performed in the browser');
+  }
+
+  if (!isCryptoAvailable) {
+    throw new Error('Web Crypto API is not available in this environment');
+  }
+
   try {
-    if (!isBrowser) {
-      throw new Error('File hash calculation must be performed in the browser');
-    }
-
-    if (!window.crypto?.subtle) {
-      throw new Error('Web Crypto API is not available');
-    }
-
     const buffer = await file.arrayBuffer();
-    const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+    const hashBuffer = await window.crypto.subtle.digest('SHA-256', buffer);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   } catch (error) {
     console.error('Error calculating file hash:', error);
-    throw new Error('Failed to calculate file hash');
+    throw new Error('Failed to calculate file hash: ' + (error instanceof Error ? error.message : 'Unknown error'));
   }
 }
 
 // 生成16位签名
 export function generateSignature(hash: string): string {
+  if (!hash) {
+    throw new Error('Hash is required to generate signature');
+  }
   try {
-    if (!hash) {
-      throw new Error('Hash is required to generate signature');
-    }
     // 取哈希值的前16位作为签名
     return hash.substring(0, 16);
   } catch (error) {
     console.error('Error generating signature:', error);
-    throw new Error('Failed to generate signature');
+    throw new Error('Failed to generate signature: ' + (error instanceof Error ? error.message : 'Unknown error'));
   }
 }
 
 // 验证签名
 export function verifySignature(hash: string, signature: string): boolean {
+  if (!hash || !signature) {
+    throw new Error('Hash and signature are required for verification');
+  }
   try {
-    if (!hash || !signature) {
-      throw new Error('Hash and signature are required for verification');
-    }
     // 检查签名是否为16位
     if (signature.length !== 16) {
       return false;

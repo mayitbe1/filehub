@@ -46,12 +46,15 @@ const SignaturePage = () => {
 
     try {
       setIsLoading(true);
+      console.log('Starting signature generation for file:', selectedFile.name);
       
       // 计算文件哈希
       const hash = await calculateFileHash(selectedFile);
+      console.log('File hash calculated:', hash);
       
       // 生成16位签名
       const signature = generateSignature(hash);
+      console.log('Signature generated:', signature);
       
       // 保存签名信息
       const response = await fetch('/api/signature', {
@@ -63,6 +66,7 @@ const SignaturePage = () => {
       });
 
       const data = await response.json();
+      console.log('API response:', data);
 
       if (!response.ok) {
         throw new Error(data.details || data.error || 'Failed to save signature');
@@ -79,7 +83,7 @@ const SignaturePage = () => {
         description: "Signature generated successfully",
       });
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error in signature generation:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to generate signature",
@@ -102,12 +106,16 @@ const SignaturePage = () => {
 
     try {
       setIsLoading(true);
+      console.log('Starting signature verification');
+      console.log('Input signature:', inputSignature);
       
       // 重新计算文件哈希
       const currentHash = await calculateFileHash(selectedFile);
+      console.log('Current file hash:', currentHash);
       
       // 验证签名
       const isValid = verifySignature(currentHash, inputSignature);
+      console.log('Verification result:', isValid);
       
       setVerificationResult(isValid);
       
@@ -117,7 +125,7 @@ const SignaturePage = () => {
         variant: isValid ? "default" : "destructive",
       });
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error in signature verification:', error);
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to verify signature",

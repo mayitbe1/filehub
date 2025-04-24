@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "public":"next dev -H 0.0.0.0"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
