@@ -24,7 +24,6 @@ const SignaturePage = () => {
   const [signatureData, setSignatureData] = useState<SignatureData | null>(null);
   const [verificationResult, setVerificationResult] = useState<boolean | null>(null);
   const [inputSignature, setInputSignature] = useState("");
-  const [activeTab, setActiveTab] = useState<'signature' | 'ksi'>('signature');
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -38,8 +37,9 @@ const SignaturePage = () => {
   const handleGenerateSignature = async () => {
     if (!selectedFile) {
       toast({
+        title: "Error",
         description: "Please select a file first",
-        className: "error-toast",
+        variant: "destructive",
       });
       return;
     }
@@ -62,11 +62,12 @@ const SignaturePage = () => {
         body: JSON.stringify({ hash, signature }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to save signature');
+        throw new Error(data.details || data.error || 'Failed to save signature');
       }
 
-      const data = await response.json();
       setSignatureData({
         hash: data.hash,
         signature: data.signature,
@@ -74,14 +75,15 @@ const SignaturePage = () => {
       });
 
       toast({
+        title: "Success",
         description: "Signature generated successfully",
-        className: "success-toast",
       });
     } catch (error) {
       console.error('Error:', error);
       toast({
-        description: "Failed to generate signature",
-        className: "error-toast",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to generate signature",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -91,8 +93,9 @@ const SignaturePage = () => {
   const handleVerifySignature = async () => {
     if (!selectedFile || !inputSignature) {
       toast({
+        title: "Error",
         description: "Please select a file and enter a signature",
-        className: "error-toast",
+        variant: "destructive",
       });
       return;
     }
@@ -109,14 +112,16 @@ const SignaturePage = () => {
       setVerificationResult(isValid);
       
       toast({
+        title: isValid ? "Success" : "Error",
         description: isValid ? "Signature is valid" : "Signature is invalid",
-        className: isValid ? "success-toast" : "error-toast",
+        variant: isValid ? "default" : "destructive",
       });
     } catch (error) {
       console.error('Error:', error);
       toast({
-        description: "Failed to verify signature",
-        className: "error-toast",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to verify signature",
+        variant: "destructive",
       });
     } finally {
       setIsLoading(false);
@@ -127,179 +132,106 @@ const SignaturePage = () => {
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-2xl font-bold mb-8">File Signature</h1>
 
-      <div className="flex gap-4 mb-8">
-        <Button
-          className={`flex-1 ${activeTab === 'signature' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}
-          onClick={() => setActiveTab('signature')}
-        >
-          Signature
-        </Button>
-        <Button
-          className={`flex-1 ${activeTab === 'ksi' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}`}
-          onClick={() => setActiveTab('ksi')}
-        >
-          KSI
-        </Button>
-      </div>
-
-      {activeTab === 'signature' ? (
-        <>
-          <Card className="mb-8">
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold mb-4">Generate Signature</h2>
-              <div className="border-2 border-dashed border-gray-200 rounded-lg p-8 text-center">
-                <div className="flex flex-col items-center justify-center">
-                  <Image
-                    src="/assets/icons/file-document.svg"
-                    alt="Upload"
-                    width={40}
-                    height={40}
-                    className="mb-4"
-                  />
-                  <p className="text-gray-600 mb-4">Drag and drop your file here, or click to select</p>
-                  <input
-                    type="file"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                    id="fileInput"
-                  />
-                  <Button
-                    onClick={() => document.getElementById('fileInput')?.click()}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90"
-                  >
-                    Select File
-                  </Button>
-                  {selectedFile && (
-                    <p className="mt-2 text-sm text-gray-600">{selectedFile.name}</p>
-                  )}
-                </div>
-              </div>
-              <div className="mt-4 flex justify-center">
-                <Button 
-                  className="bg-primary text-primary-foreground hover:bg-primary/90"
-                  onClick={handleGenerateSignature}
-                  disabled={!selectedFile || isLoading}
-                >
-                  {isLoading ? (
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src="/assets/icons/loader.svg"
-                        alt="Loading"
-                        width={20}
-                        height={20}
-                        className="animate-spin"
-                      />
-                      Processing...
-                    </div>
-                  ) : (
-                    "Generate Signature"
-                  )}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {signatureData && (
-            <Card className="mb-8">
-              <CardContent className="pt-6">
-                <h2 className="text-xl font-semibold mb-4">Signature Information</h2>
-                <div className="space-y-2">
-                  <p><span className="font-medium">File Hash:</span> {signatureData.hash}</p>
-                  <p><span className="font-medium">Signature:</span> {signatureData.signature}</p>
-                  <p><span className="font-medium">Timestamp:</span> {new Date(signatureData.timestamp).toLocaleString()}</p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          <Card>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold mb-4">Verify Signature</h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Enter Signature (16 characters)</label>
-                  <Input
-                    type="text"
-                    value={inputSignature}
-                    onChange={(e) => setInputSignature(e.target.value)}
-                    placeholder="Enter 16-character signature"
-                    maxLength={16}
-                    className="w-full"
-                  />
-                </div>
-                <div className="flex justify-center">
-                  <Button 
-                    className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
-                    onClick={handleVerifySignature}
-                    disabled={!selectedFile || !inputSignature || isLoading}
-                  >
-                    Verify Signature
-                  </Button>
-                </div>
-                {verificationResult !== null && (
-                  <p className={`text-center font-medium ${verificationResult ? 'text-green-600' : 'text-red-600'}`}>
-                    Verification Status: {verificationResult ? 'Valid' : 'Invalid'}
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </>
-      ) : (
-        <Card>
-          <CardContent className="pt-6">
-            <h2 className="text-xl font-semibold mb-4">KSI Verification</h2>
-            <div className="border-2 border-dashed border-gray-200 rounded-lg p-8 text-center">
-              <div className="flex flex-col items-center justify-center">
-                <Image
-                  src="/assets/icons/file-document.svg"
-                  alt="Upload"
-                  width={40}
-                  height={40}
-                  className="mb-4"
-                />
-                <p className="text-gray-600 mb-4">Drag and drop your file here, or click to select</p>
-                <input
-                  type="file"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                  id="ksiFileInput"
-                />
-                <Button
-                  onClick={() => document.getElementById('ksiFileInput')?.click()}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90"
-                >
-                  Select File
-                </Button>
-                {selectedFile && (
-                  <p className="mt-2 text-sm text-gray-600">{selectedFile.name}</p>
-                )}
-              </div>
-            </div>
-            <div className="mt-4 flex justify-center">
-              <Button 
+      <Card className="mb-8">
+        <CardContent className="pt-6">
+          <h2 className="text-xl font-semibold mb-4">Generate Signature</h2>
+          <div className="border-2 border-dashed border-gray-200 rounded-lg p-8 text-center">
+            <div className="flex flex-col items-center justify-center">
+              <Image
+                src="/assets/icons/file-document.svg"
+                alt="Upload"
+                width={40}
+                height={40}
+                className="mb-4"
+              />
+              <p className="text-gray-600 mb-4">Drag and drop your file here, or click to select</p>
+              <input
+                type="file"
+                onChange={handleFileSelect}
+                className="hidden"
+                id="fileInput"
+              />
+              <Button
+                onClick={() => document.getElementById('fileInput')?.click()}
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
-                disabled={!selectedFile || isLoading}
               >
-                {isLoading ? (
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src="/assets/icons/loader.svg"
-                      alt="Loading"
-                      width={20}
-                      height={20}
-                      className="animate-spin"
-                    />
-                    Processing...
-                  </div>
-                ) : (
-                  "Verify with KSI"
-                )}
+                Select File
               </Button>
+              {selectedFile && (
+                <p className="mt-2 text-sm text-gray-600">{selectedFile.name}</p>
+              )}
+            </div>
+          </div>
+          <div className="mt-4 flex justify-center">
+            <Button 
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={handleGenerateSignature}
+              disabled={!selectedFile || isLoading}
+            >
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <Image
+                    src="/assets/icons/loader.svg"
+                    alt="Loading"
+                    width={20}
+                    height={20}
+                    className="animate-spin"
+                  />
+                  Processing...
+                </div>
+              ) : (
+                "Generate Signature"
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {signatureData && (
+        <Card className="mb-8">
+          <CardContent className="pt-6">
+            <h2 className="text-xl font-semibold mb-4">Signature Information</h2>
+            <div className="space-y-2">
+              <p><span className="font-medium">File Hash:</span> {signatureData.hash}</p>
+              <p><span className="font-medium">Signature:</span> {signatureData.signature}</p>
+              <p><span className="font-medium">Timestamp:</span> {new Date(signatureData.timestamp).toLocaleString()}</p>
             </div>
           </CardContent>
         </Card>
       )}
+
+      <Card>
+        <CardContent className="pt-6">
+          <h2 className="text-xl font-semibold mb-4">Verify Signature</h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Enter Signature (16 characters)</label>
+              <Input
+                type="text"
+                value={inputSignature}
+                onChange={(e) => setInputSignature(e.target.value)}
+                placeholder="Enter 16-character signature"
+                maxLength={16}
+                className="w-full"
+              />
+            </div>
+            <div className="flex justify-center">
+              <Button 
+                className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                onClick={handleVerifySignature}
+                disabled={!selectedFile || !inputSignature || isLoading}
+              >
+                Verify Signature
+              </Button>
+            </div>
+            {verificationResult !== null && (
+              <p className={`text-center font-medium ${verificationResult ? 'text-green-600' : 'text-red-600'}`}>
+                Verification Status: {verificationResult ? 'Valid' : 'Invalid'}
+              </p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };

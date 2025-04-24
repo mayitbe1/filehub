@@ -1,5 +1,8 @@
 import { encodeBase64, decodeBase64 } from "../utils/base64";
 
+// 检查是否在浏览器环境中
+const isBrowser = typeof window !== 'undefined';
+
 // 生成RSA密钥对
 export async function generateKeyPair() {
   return await window.crypto.subtle.generateKey(
@@ -16,26 +19,55 @@ export async function generateKeyPair() {
 
 // 计算文件的SHA-256哈希
 export async function calculateFileHash(file: File): Promise<string> {
-  const buffer = await file.arrayBuffer();
-  const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  try {
+    if (!isBrowser) {
+      throw new Error('File hash calculation must be performed in the browser');
+    }
+
+    if (!window.crypto?.subtle) {
+      throw new Error('Web Crypto API is not available');
+    }
+
+    const buffer = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch (error) {
+    console.error('Error calculating file hash:', error);
+    throw new Error('Failed to calculate file hash');
+  }
 }
 
 // 生成16位签名
 export function generateSignature(hash: string): string {
-  // 取哈希值的前16位作为签名
-  return hash.substring(0, 16);
+  try {
+    if (!hash) {
+      throw new Error('Hash is required to generate signature');
+    }
+    // 取哈希值的前16位作为签名
+    return hash.substring(0, 16);
+  } catch (error) {
+    console.error('Error generating signature:', error);
+    throw new Error('Failed to generate signature');
+  }
 }
 
 // 验证签名
 export function verifySignature(hash: string, signature: string): boolean {
-  // 检查签名是否为16位
-  if (signature.length !== 16) {
+  try {
+    if (!hash || !signature) {
+      throw new Error('Hash and signature are required for verification');
+    }
+    // 检查签名是否为16位
+    if (signature.length !== 16) {
+      return false;
+    }
+    // 验证签名是否匹配
+    return hash.substring(0, 16) === signature;
+  } catch (error) {
+    console.error('Error verifying signature:', error);
     return false;
   }
-  // 验证签名是否匹配
-  return hash.substring(0, 16) === signature;
 }
 
 // 使用私钥对哈希值进行签名
