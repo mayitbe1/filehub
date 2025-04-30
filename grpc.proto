@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+package proto;
+
+message Hash_struct {
+    uint32 h0 = 1;
+    uint32 h1 = 2;
+    uint32 h2 = 3;
+    uint32 h3 = 4;
+    uint32 h4 = 5;
+    uint32 h5 = 6;
+    uint32 h6 = 7;
+    uint32 h7 = 8;
+}
+
+message time_id {
+    uint32 sec = 1;
+    uint32 usec = 2;
+    uint32 id = 3;
+}
+
+message Hash_time {
+    Hash_struct h = 1;
+    time_id t = 2;
+}
+
+message Hash_chain {
+    uint32 h0 = 1;
+    uint32 h1 = 2;
+    uint32 h2 = 3;
+    uint32 h3 = 4;
+    uint32 h4 = 5;
+    uint32 h5 = 6;
+    uint32 h6 = 7;
+    uint32 h7 = 8;
+    uint32 h8 = 9;
+    uint32 h9 = 10;
+    uint32 h10 = 11;
+    uint32 h11 = 12;
+    uint32 h12 = 13;
+    uint32 h13 = 14;
+    uint32 h14 = 15;
+    uint32 h15 = 16;
+    uint32 h16 = 17;
+    uint32 h17 = 18;
+    uint32 h18 = 19;
+    uint32 h19 = 20;
+    uint32 h20 = 21;
+    uint32 h21 = 22;
+    uint32 h22 = 23;
+    uint32 h23 = 24;
+    uint32 h24 = 25;
+    uint32 h25 = 26;
+    uint32 h26 = 27;
+    uint32 h27 = 28;
+    uint32 h28 = 29;
+    uint32 h29 = 30;
+    uint32 h30 = 31;
+    uint32 h31 = 32;
+    uint32 h32 = 33;
+    uint32 h33 = 34;
+    uint32 h34 = 35;
+    uint32 h35 = 36;
+    uint32 h36 = 37;
+    uint32 h37 = 38;
+    uint32 h38 = 39;
+    uint32 h39 = 40;
+    uint32 h40 = 41;
+    uint32 h41 = 42;
+    uint32 h42 = 43;
+    uint32 h43 = 44;
+    uint32 h44 = 45;
+    uint32 h45 = 46;
+    uint32 h46 = 47;
+    uint32 h47 = 48;
+
+}
+
+message Path {
+    Hash_struct h0 = 1;
+    Hash_struct h1 = 2;
+    Hash_struct h2 = 3;
+    Hash_struct h3 = 4;
+    Hash_struct h4 = 5;
+    Hash_struct h5 = 6;
+    Hash_struct h6 = 7;
+    Hash_struct h7 = 8;
+    Hash_struct h8 = 9;
+    Hash_struct h9 = 10;
+    Hash_struct h10 = 11;
+    Hash_struct h11 = 12;
+    Hash_struct h12 = 13;
+    Hash_struct h13 = 14;
+    Hash_struct h14 = 15;
+    Hash_struct h15 = 16;
+    Hash_struct h16 = 17;
+    Hash_struct h17 = 18;
+    Hash_struct h18 = 19;
+    Hash_struct h19 = 20;
+    Hash_struct h20 = 21;
+    Hash_struct h21 = 22;
+    Hash_struct h22 = 23;
+} // need to modify with time interval
+
+service c2s {
+    rpc upload (Hash_struct) returns (time_id) {}
+    rpc lookup (time_id) returns (Path) {}
+}
+
+service e2c {
+    rpc insert (Hash_time) returns (Hash_chain) {}
+}
+
+service c2c {
+    rpc cmp (Hash_struct) returns (Hash_struct) {}
+}
