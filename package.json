@@ -6,8 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "public":"next dev -H 0.0.0.0"
+    "lint": "next lint"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -21,10 +20,12 @@
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-toast": "^1.2.2",
+    "@radix-ui/react-tooltip": "^1.1.8",
     "@types/pako": "^2.0.3",
+    "appwrite": "^17.0.1",
+    "axios": "^1.8.4",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "date-fns": "^4.1.0",
     "input-otp": "^1.2.5",
     "lucide-react": "^0.454.0",
     "next": "15.0.2",
@@ -37,7 +38,6 @@
     "react-dropzone": "^14.3.8",
     "react-hook-form": "^7.53.1",
     "recharts": "^2.13.3",
-    "sonner": "^2.0.3",
     "tailwind-merge": "^2.5.4",
     "use-debounce": "^10.0.4",
     "zod": "^3.23.8"
